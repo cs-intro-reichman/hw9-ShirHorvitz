@@ -59,21 +59,25 @@ public class MemorySpace {
 	 */
 	public int malloc(int length) {		
 		Node currentNode = freeList.getFirst();
-		while (currentNode.block.length<length && currentNode != null) {
+		while (currentNode != null) {
+			if (currentNode.block.length >= length) {
+				break;
+			}
 			currentNode = currentNode.next;
 		}
 		if (currentNode==null) {
 			return -1;
 		}
 		MemoryBlock newBlock = new MemoryBlock(currentNode.block.baseAddress, length);
+		allocatedList.addLast(newBlock);
 		if (currentNode.block.length == length) {
 			freeList.remove(currentNode);
+			return newBlock.baseAddress;
 		}else {
 			currentNode.block.baseAddress += length;
 			currentNode.block.length -= length;
+			return newBlock.baseAddress;
 		}
-		allocatedList.addLast(newBlock);
-		return newBlock.baseAddress;
 	}
 
 	/**
@@ -86,16 +90,20 @@ public class MemorySpace {
 	 */
 	public void free(int address) {
 		Node currentnode = allocatedList.getFirst();
-		if (allocatedList.getSize()==0) {
+		if (allocatedList.getSize() == 0) {
 			throw new IllegalArgumentException("index must be between 0 and size");
-		} else {
-			while (currentnode.block.baseAddress != address && currentnode != allocatedList.getLast()) {
-				currentnode = currentnode.next;
-			} if(currentnode.block.baseAddress == address){
-				allocatedList.remove(currentnode.block);
-				freeList.addLast(currentnode.block);
-			}
 		}
+		while (currentnode != null) {
+			if (currentnode.block.baseAddress == address) {
+				break;
+			}
+			currentnode = currentnode.next;
+		} 
+		if(currentnode == null){
+			return;
+		}
+		allocatedList.remove(currentnode.block);
+		freeList.addLast(currentnode.block);
 	}
 	
 	/**
