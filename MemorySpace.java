@@ -89,7 +89,7 @@ public class MemorySpace {
 		if (allocatedList.getSize()==0) {
 			throw new IllegalArgumentException("index must be between 0 and size");
 		} else {
-			while (currentnode.block.baseAddress != address && current != allocatedList.getLast()) {
+			while (currentnode.block.baseAddress != address && currentnode != allocatedList.getLast()) {
 				currentnode = currentnode.next;
 			} if(currentnode.block.baseAddress == address){
 				allocatedList.remove(currentnode.block);
